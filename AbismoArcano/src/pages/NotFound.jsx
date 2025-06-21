@@ -11,7 +11,6 @@ function NotFound() {
       <p className="text-xl text-primary-dark-violet mb-8">
         Lo sentimos, la página que estás buscando no existe.
       </p>
-      {/* Botón de navegación: texto oscuro sobre dorado/esmeralda */}
       <Link to="/" className="inline-flex items-center px-8 py-4 bg-button-golden text-primary-dark-violet rounded-full font-bold text-lg hover:bg-hover-emerald-tint hover:text-text-light-gray transition-colors duration-200 shadow-lg">
         Volver a la Página Principal
       </Link>

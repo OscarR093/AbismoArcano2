@@ -17,7 +17,6 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             &times;
           </button>
         </div>
-        {/* Contenido del modal: Ajustado a primary-dark-violet para mejor contraste */}
         <div className="text-primary-dark-violet">
           {children}
         </div>

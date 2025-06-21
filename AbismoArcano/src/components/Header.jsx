@@ -8,7 +8,7 @@ function Header({ userId, onLogout }) {
     <header className="bg-primary-dark-violet text-text-light-gray shadow-md py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/" className="text-3xl font-bold text-accent-purple hover:text-button-golden transition-colors duration-200">
-          Mi Blog
+          AbismoArcano
         </Link>
         <nav className="flex items-center space-x-6">
           <Link to="/" className="flex items-center text-lg font-semibold hover:text-accent-purple transition-colors duration-200">
@@ -46,7 +46,7 @@ function Header({ userId, onLogout }) {
             </button>
           ) : ( // Si no está logueado, muestra el botón de Login
             <Link to="/login" className="inline-flex items-center px-4 py-2 bg-accent-purple text-text-light-gray rounded-md font-semibold text-base hover:bg-button-golden transition-colors duration-200 shadow-md">
-              <LogIn className="mr-2" size={20} /> {/* Asegúrate de que esto sea LogIn y no Login */}
+              <LogIn className="mr-2" size={20} />
               Iniciar Sesión
             </Link>
           )}

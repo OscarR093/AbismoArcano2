@@ -1,6 +1,6 @@
 // src/pages/CreateBlog.jsx
 import React, { useState } from 'react';
-import { addMockBlog } from '../mockData'; // Importa la función para añadir blog simulado
+import { createBlog } from '../api'; // Importa la función de API
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, ArrowLeft } from 'lucide-react';
 
@@ -8,6 +8,7 @@ function CreateBlog({ userId }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [subscriptionPrice, setSubscriptionPrice] = useState(0.00); // Nuevo estado para el precio de suscripción
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -16,7 +17,7 @@ function CreateBlog({ userId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userId) {
-      setError("Error: ID de usuario no disponible. Recarga la página.");
+      setError("Error: ID de usuario no disponible. Por favor, inicia sesión.");
       return;
     }
 
@@ -25,23 +26,28 @@ function CreateBlog({ userId }) {
     setSuccess(false);
 
     try {
-      await addMockBlog({
+      const newBlogData = {
         title,
         description,
-        imageUrl: imageUrl || `https://placehold.co/600x400/${encodeURIComponent('2C2B3F').substring(1)}/${encodeURIComponent('EAEAEA').substring(1)}?text=${encodeURIComponent(title || 'Mi Blog')}`,
-        ownerId: userId, // Asigna el blog al usuario actual simulado
-      });
+        imageUrl: imageUrl || `https://placehold.co/600x400/2C2B3F/EAEAEA?text=${encodeURIComponent(title || 'Mi Blog')}`,
+        subscriptionPrice: parseFloat(subscriptionPrice), // Asegúrate de enviar un número
+      };
+      
+      await createBlog(newBlogData); // Llama a la API para crear el blog (userId se añade automáticamente en api.js)
+      
       setSuccess(true);
       setTitle('');
       setDescription('');
       setImageUrl('');
+      setSubscriptionPrice(0.00);
+      
       // Redirigir a "Mis Blogs" después de un breve retraso
       setTimeout(() => {
         navigate('/my-blogs');
       }, 1500);
     } catch (err) {
-      console.error("Error al crear blog simulado:", err);
-      setError("Error al crear el blog. Inténtalo de nuevo.");
+      console.error("Error al crear blog en el backend:", err);
+      setError(err.message || "Error al crear el blog. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +56,6 @@ function CreateBlog({ userId }) {
   return (
     <div className="container mx-auto px-4 py-8 bg-text-light-gray rounded-lg shadow-xl">
       <div className="flex items-center mb-6">
-        {/* Botón Volver a Mis Blogs: texto oscuro sobre dorado/esmeralda */}
         <button onClick={() => navigate('/my-blogs')}
                 className="inline-flex items-center px-4 py-2 bg-button-golden text-primary-dark-violet rounded-md hover:bg-hover-emerald-tint hover:text-text-light-gray transition-colors duration-200 shadow-md mr-4">
           <ArrowLeft className="mr-2" size={20} />
@@ -95,10 +100,22 @@ function CreateBlog({ userId }) {
             placeholder="https://ejemplo.com/imagen.jpg"
           />
         </div>
-        {/* Mensajes de error y éxito con colores para contraste */}
+        <div>
+          <label htmlFor="subscriptionPrice" className="block text-lg font-medium text-primary-dark-violet mb-2">Precio de Suscripción (0 para gratis)</label>
+          <input
+            type="number"
+            id="subscriptionPrice"
+            value={subscriptionPrice.toFixed(2)} // Muestra siempre dos decimales
+            onChange={(e) => setSubscriptionPrice(parseFloat(e.target.value) || 0.00)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-accent-purple focus:border-accent-purple text-primary-dark-violet text-lg"
+            placeholder="Ej. 9.99"
+            min="0"
+            step="1.0"
+          />
+          <p className="text-sm text-gray-500 mt-1">Establece 0.00 para un blog gratuito. Los posts podrán ser de pago o gratuitos.</p>
+        </div>
         {error && <p className="text-button-golden text-center">{error}</p>}
         {success && <p className="text-hover-emerald-tint text-center font-semibold">Blog creado exitosamente. Redirigiendo...</p>}
-        {/* Botón de submit: texto oscuro sobre dorado/esmeralda */}
         <button
           type="submit"
           className="w-full inline-flex items-center justify-center px-6 py-3 bg-button-golden text-primary-dark-violet rounded-md font-semibold text-xl hover:bg-hover-emerald-tint hover:text-text-light-gray transition-colors duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"

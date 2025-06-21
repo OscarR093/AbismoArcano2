@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BACKEND_BASE_URL, setToken } from '../mockData'; // Importa la URL base y setToken
+import { login, register, setToken } from '../api'; // Importa las funciones de API y setToken
 import { LogIn, UserPlus } from 'lucide-react'; // Iconos
 
 function Login({ onLoginSuccess }) {
@@ -17,32 +17,23 @@ function Login({ onLoginSuccess }) {
     setLoading(true);
     setError(null);
 
-    const endpoint = isRegisterMode ? '/register' : '/login';
-    const body = { username, password };
-
     try {
-      const response = await fetch(`${BACKEND_BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setToken(data.userId); // Almacena el userId retornado por el backend como nuestro "token"
-        if (onLoginSuccess) {
-          onLoginSuccess(data.userId); // Pasa el userId al App.jsx
-        }
-        navigate('/'); // Redirige a la página principal
+      let data;
+      if (isRegisterMode) {
+        data = await register(username, password);
       } else {
-        setError(data.message || 'Ocurrió un error. Inténtalo de nuevo.');
+        data = await login(username, password);
       }
+      
+      setToken(data.userId); // Almacena el userId retornado por el backend como nuestro "token"
+      if (onLoginSuccess) {
+        onLoginSuccess(data.userId); // Pasa el userId al App.jsx
+      }
+      navigate('/'); // Redirige a la página principal
     } catch (err) {
-      console.error('Error de conexión o de red:', err);
-      setError('No se pudo conectar con el servidor. Asegúrate de que el backend está corriendo.');
+      console.error('Error de autenticación:', err);
+      // El backend ya debería enviar un mensaje de error legible
+      setError(err.message || 'Ocurrió un error. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }

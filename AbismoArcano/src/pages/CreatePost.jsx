@@ -1,7 +1,7 @@
 // src/pages/CreatePost.jsx
 import React, { useState, useEffect } from 'react';
-import { addMockPost, getMockBlogById } from '../mockData'; // Importa funciones simuladas
-import { useNavigate, useParams, Link } from 'react-router-dom'; // ¡Aquí se añade Link!
+import { createPost, getBlogById } from '../api'; // Importa funciones de API
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { PlusCircle, ArrowLeft } from 'lucide-react';
 
 function CreatePost({ userId }) {
@@ -12,6 +12,7 @@ function CreatePost({ userId }) {
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState(''); // Contenido HTML o Markdown
   const [imageUrl, setImageUrl] = useState('');
+  const [isPaid, setIsPaid] = useState(false); // Nuevo estado para post de pago
   const [loading, setLoading] = useState(false); // Para el envío del formulario
   const [initialLoad, setInitialLoad] = useState(true); // Nuevo estado para la carga inicial/verificación de propiedad
   const [error, setError] = useState(null);
@@ -29,23 +30,24 @@ function CreatePost({ userId }) {
       setInitialLoad(true); // Inicia la carga inicial
       setError(null); // Limpia errores anteriores
       try {
-        const blogData = await getMockBlogById(blogId);
+        const blogData = await getBlogById(blogId); // Obtener blog del backend
         if (blogData) {
           setBlogTitle(blogData.title);
-          if (blogData.ownerId === userId) {
+          // owner_id del backend es numérico, userId es 'user-X'
+          if (`user-${blogData.owner_id}` === userId) {
             setIsOwner(true);
           } else {
             setError("No tienes permiso para añadir posts a este blog.");
-            setIsOwner(false); // Asegúrate de que es false
+            setIsOwner(false);
           }
         } else {
           setError("Blog no encontrado.");
-          setIsOwner(false); // Asegúrate de que es false
+          setIsOwner(false);
         }
       } catch (err) {
-        console.error("Error al verificar la propiedad del blog simulado:", err);
-        setError("Error al verificar el blog.");
-        setIsOwner(false); // Asegúrate de que es false
+        console.error("Error al verificar la propiedad del blog:", err);
+        setError(err.message || "Error al verificar el blog.");
+        setIsOwner(false);
       } finally {
         setInitialLoad(false); // Finaliza la carga inicial
       }
@@ -66,23 +68,28 @@ function CreatePost({ userId }) {
     setSuccess(false);
 
     try {
-      await addMockPost(blogId, {
+      const newPostData = {
         title,
         excerpt,
         content,
-        imageUrl: imageUrl || `https://placehold.co/600x300/${encodeURIComponent('2C2B3F').substring(1)}/${encodeURIComponent('EAEAEA').substring(1)}?text=${encodeURIComponent(title || 'Nuevo Post')}`,
-      });
+        imageUrl: imageUrl || `https://placehold.co/600x300/2C2B3F/EAEAEA?text=${encodeURIComponent(title || 'Nuevo Post')}`,
+        isPaid: isPaid, // Envía el estado de pago
+      };
+
+      await createPost(blogId, newPostData); // Llama a la API para crear el post (userId se añade automáticamente en api.js)
+
       setSuccess(true);
       setTitle('');
       setExcerpt('');
       setContent('');
       setImageUrl('');
+      setIsPaid(false); // Reinicia el estado de pago
       setTimeout(() => {
-        navigate(`/blogs/${blogId}`); // Redirigir al blog después de crear el post
+        navigate(`/blogs/${blogId}`); // Redirige al blog después de crear el post
       }, 1500);
     } catch (err) {
-      console.error("Error al crear post simulado:", err);
-      setError("Error al crear el post. Inténtalo de nuevo.");
+      console.error("Error al crear post en el backend:", err);
+      setError(err.message || "Error al crear el post. Inténtalo de nuevo.");
     } finally {
       setLoading(false); // Finaliza la carga del formulario
     }
@@ -102,7 +109,6 @@ function CreatePost({ userId }) {
     return (
       <div className="text-center py-10 text-button-golden">
         <p className="text-lg">{error}</p>
-        {/* Botón Volver al Blog: texto oscuro sobre dorado/esmeralda */}
         <Link to={`/blogs/${blogId}`} className="inline-flex items-center mt-4 px-6 py-3 bg-button-golden text-primary-dark-violet rounded-md hover:bg-hover-emerald-tint hover:text-text-light-gray transition-colors duration-200 shadow-md">
           <ArrowLeft className="mr-2" size={20} />
           Volver al Blog
@@ -111,15 +117,10 @@ function CreatePost({ userId }) {
     );
   }
 
-  // Si no es propietario y no hay error explícito, podría ser un caso de acceso denegado sin mensaje específico
-  // O bien, el error ya fue establecido arriba
-  if (!isOwner && !error) { // Este caso debería ser manejado por el bloque de arriba que muestra el error.
-                            // Si llega aquí sin error y no es propietario, debería ser una página no encontrada o acceso denegado.
-                            // Añadimos un mensaje explícito si el caso de error de arriba no se activó.
+  if (!isOwner && !error) {
     return (
       <div className="text-center py-10 text-button-golden">
         <p className="text-lg">Acceso Denegado: No eres el propietario de este blog.</p>
-        {/* Botón Volver al Blog: texto oscuro sobre dorado/esmeralda */}
         <Link to={`/blogs/${blogId}`} className="inline-flex items-center mt-4 px-6 py-3 bg-button-golden text-primary-dark-violet rounded-md hover:bg-hover-emerald-tint hover:text-text-light-gray transition-colors duration-200 shadow-md">
           <ArrowLeft className="mr-2" size={20} />
           Volver al Blog
@@ -131,7 +132,6 @@ function CreatePost({ userId }) {
   return (
     <div className="container mx-auto px-4 py-8 bg-text-light-gray rounded-lg shadow-xl">
       <div className="flex items-center mb-6">
-        {/* Botón de navegación: texto oscuro sobre dorado/esmeralda */}
         <button onClick={() => navigate(`/blogs/${blogId}`)}
                 className="inline-flex items-center px-4 py-2 bg-button-golden text-primary-dark-violet rounded-md hover:bg-hover-emerald-tint hover:text-text-light-gray transition-colors duration-200 shadow-md mr-4">
           <ArrowLeft className="mr-2" size={20} />
@@ -188,10 +188,20 @@ function CreatePost({ userId }) {
             placeholder="https://ejemplo.com/imagen-post.jpg"
           />
         </div>
-        {/* Mensajes de error y éxito con colores para contraste */}
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="isPaid"
+            checked={isPaid}
+            onChange={(e) => setIsPaid(e.target.checked)}
+            className="h-5 w-5 text-accent-purple border-gray-300 rounded focus:ring-accent-purple"
+          />
+          <label htmlFor="isPaid" className="ml-2 block text-lg font-medium text-primary-dark-violet">
+            Post de Pago (Requiere suscripción al blog)
+          </label>
+        </div>
         {error && <p className="text-button-golden text-center">{error}</p>}
         {success && <p className="text-hover-emerald-tint text-center font-semibold">Post creado exitosamente. Redirigiendo...</p>}
-        {/* Botón de submit: texto oscuro sobre dorado/esmeralda */}
         <button
           type="submit"
           className="w-full inline-flex items-center justify-center px-6 py-3 bg-button-golden text-primary-dark-violet rounded-md font-semibold text-xl hover:bg-hover-emerald-tint hover:text-text-light-gray transition-colors duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"

@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { getToken, removeToken } from './mockData'; // Importa las funciones de token
+import { getToken, removeToken } from './api'; // Importa funciones de token desde el módulo API
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -22,7 +22,7 @@ function App() {
 
   useEffect(() => {
     // Al cargar la app, intenta obtener el ID del usuario del localStorage
-    const storedUserId = getToken(); // Usa getToken para verificar si hay un ID/token
+    const storedUserId = getToken(); // Usa getToken del módulo API
     if (storedUserId) {
       setUserId(storedUserId);
     }
@@ -34,7 +34,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    removeToken(); // Llama a removeToken para limpiar el localStorage
+    removeToken(); // Llama a removeToken del módulo API
     setUserId(null);
   };
 
@@ -68,7 +68,7 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen font-inter bg-primary-dark-violet">
-        <Header userId={userId} onLogout={handleLogout} /> {/* Pasar userId y la función de logout */}
+        <Header userId={userId} onLogout={handleLogout} />
         <main className="flex-grow container mx-auto px-4 py-8">
           {/* Muestra el ID de usuario si está logueado y no es la página de login */}
           {userId && (

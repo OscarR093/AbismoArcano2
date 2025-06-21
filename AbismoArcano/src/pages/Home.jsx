@@ -1,9 +1,9 @@
 // src/pages/Home.jsx
 import React, { useState, useEffect } from 'react';
-import { getMockBlogs } from '../mockData'; // Importa la función para obtener blogs simulados
+import { getBlogs } from '../api'; // Importa la función de API
 import BlogCard from '../components/BlogCard';
 
-function Home({ userId }) { // userId no se usa directamente aquí, pero se mantiene por consistencia
+function Home({ userId }) { // userId se pasa para consistencia, aunque no se usa directamente aquí
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,18 +12,19 @@ function Home({ userId }) { // userId no se usa directamente aquí, pero se mant
     const fetchBlogs = async () => {
       try {
         setLoading(true);
-        const blogsData = await getMockBlogs(); // Obtiene los blogs simulados
+        // Llama a la API para obtener los blogs
+        const blogsData = await getBlogs();
         setBlogs(blogsData);
         setLoading(false);
       } catch (err) {
-        console.error("Error al obtener blogs simulados:", err);
-        setError("Error al cargar los blogs.");
+        console.error("Error al obtener blogs del backend:", err);
+        setError("Error al cargar los blogs. Asegúrate de que el backend está corriendo.");
         setLoading(false);
       }
     };
 
     fetchBlogs();
-  }, []); // Sin dependencias de Firebase
+  }, []); // Sin dependencias de Firebase o userId aquí, ya que obtiene todos los blogs públicos
 
   if (loading) {
     return (
@@ -44,7 +45,7 @@ function Home({ userId }) { // userId no se usa directamente aquí, pero se mant
   if (blogs.length === 0) {
     return (
       <div className="text-center py-10">
-        <p className="text-text-light-gray text-lg">No hay blogs disponibles todavía. ¡Sé el primero en crear uno!</p>
+        <p className="text-text-light-gray text-lg">No hay blogs disponibles todavía. ¡Crea uno desde "Mis Blogs"!</p>
       </div>
     );
   }

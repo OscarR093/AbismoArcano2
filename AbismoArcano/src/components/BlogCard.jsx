@@ -4,14 +4,17 @@ import { Link } from 'react-router-dom';
 import { User, CalendarDays } from 'lucide-react'; // Iconos
 
 function BlogCard({ blog }) {
+  // Asegúrate de que owner_username esté disponible si viene del backend
+  const ownerDisplay = blog.owner_username || blog.ownerId; // Usa owner_username del backend o fallback a ownerId
+
   return (
     <div className="bg-text-light-gray rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 ease-in-out">
       <Link to={`/blogs/${blog.id}`}>
         <img
-          src={blog.imageUrl || `https://placehold.co/600x400/${encodeURIComponent('2C2B3F').substring(1)}/${encodeURIComponent('EAEAEA').substring(1)}?text=${encodeURIComponent(blog.title)}`}
+          src={blog.image_url || `https://placehold.co/600x400/2C2B3F/EAEAEA?text=${encodeURIComponent(blog.title)}`} // Usar blog.image_url
           alt={blog.title}
           className="w-full h-48 object-cover"
-          onError={(e) => { e.target.onerror = null; e.target.src=`https://placehold.co/600x400/${encodeURIComponent('2C2B3F').substring(1)}/${encodeURIComponent('EAEAEA').substring(1)}?text=Imagen+No+Disp.` }}
+          onError={(e) => { e.target.onerror = null; e.target.src=`https://placehold.co/600x400/2C2B3F/EAEAEA?text=Imagen+No+Disp.` }}
         />
       </Link>
       <div className="p-6 flex flex-col justify-between h-auto">
@@ -20,14 +23,12 @@ function BlogCard({ blog }) {
             {blog.title}
           </Link>
         </h2>
-        {/* Descripción: Ahora usa primary-dark-violet para mejor contraste sobre el fondo claro */}
         <p className="text-primary-dark-violet text-sm mb-4 flex-grow line-clamp-3">{blog.description}</p>
-        {/* Info del creador y fecha: Ahora usa primary-dark-violet para mejor contraste */}
         <div className="flex items-center text-primary-dark-violet text-xs mt-auto">
           <User className="mr-1" size={16} />
-          <span>Creado por: {blog.ownerId}</span> {/* Muestra el ID de propietario simulado */}
+          <span>Creado por: {ownerDisplay}</span>
           <CalendarDays className="ml-4 mr-1" size={16} />
-          <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+          <span>{new Date(blog.created_at).toLocaleDateString()}</span>
         </div>
       </div>
     </div>
