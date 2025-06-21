@@ -1,0 +1,21 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos globales para Inter Font y la nueva paleta de colores */
+body {
+  font-family: 'Inter', sans-serif;
+  /* Aplicamos el fondo principal y el texto principal definidos en tailwind.config.js */
+  @apply bg-primary-dark-violet text-text-light-gray antialiased;
+}
+
+a {
+  /* Los enlaces usarán el color dorado antiguo por defecto */
+  @apply text-button-golden hover:text-hover-emerald-tint transition-colors duration-200;
+}
+
+button {
+  /* Botones usarán el color dorado antiguo por defecto y el verde esmeralda para hover */
+  @apply px-4 py-2 rounded-md font-semibold bg-button-golden text-text-light-gray hover:bg-hover-emerald-tint transition-colors duration-200;
+}
