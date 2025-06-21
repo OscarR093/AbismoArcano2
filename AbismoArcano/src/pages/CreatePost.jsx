@@ -11,7 +11,7 @@ function CreatePost({ userId }) {
   const [title, setTitle] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState(''); // Contenido HTML o Markdown
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState(''); // Estado para la URL de la imagen
   const [isPaid, setIsPaid] = useState(false); // Nuevo estado para post de pago
   const [loading, setLoading] = useState(false); // Para el envío del formulario
   const [initialLoad, setInitialLoad] = useState(true); // Nuevo estado para la carga inicial/verificación de propiedad
@@ -72,11 +72,11 @@ function CreatePost({ userId }) {
         title,
         excerpt,
         content,
-        imageUrl: imageUrl || `https://placehold.co/600x300/2C2B3F/EAEAEA?text=${encodeURIComponent(title || 'Nuevo Post')}`,
+        image_url: imageUrl || `https://placehold.co/600x300/2C2B3F/EAEAEA?text=${encodeURIComponent(title || 'Nuevo Post')}`, // Usar image_url para enviar al backend
         isPaid: isPaid, // Envía el estado de pago
       };
 
-      await createPost(blogId, newPostData); // Llama a la API para crear el post (userId se añade automáticamente en api.js)
+      await createPost(blogId, newPostData); // Llama a la API para crear el post
 
       setSuccess(true);
       setTitle('');

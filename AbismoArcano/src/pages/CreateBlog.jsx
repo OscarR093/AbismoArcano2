@@ -7,8 +7,8 @@ import { PlusCircle, ArrowLeft } from 'lucide-react';
 function CreateBlog({ userId }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [subscriptionPrice, setSubscriptionPrice] = useState(0.00); // Nuevo estado para el precio de suscripción
+  const [imageUrl, setImageUrl] = useState(''); // Estado para la URL de la imagen
+  const [subscriptionPrice, setSubscriptionPrice] = useState(0.00);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -29,11 +29,11 @@ function CreateBlog({ userId }) {
       const newBlogData = {
         title,
         description,
-        imageUrl: imageUrl || `https://placehold.co/600x400/2C2B3F/EAEAEA?text=${encodeURIComponent(title || 'Mi Blog')}`,
-        subscriptionPrice: parseFloat(subscriptionPrice), // Asegúrate de enviar un número
+        image_url: imageUrl || `https://placehold.co/600x400/2C2B3F/EAEAEA?text=${encodeURIComponent(title || 'Mi Blog')}`, // Usar image_url para enviar al backend
+        subscriptionPrice: parseFloat(subscriptionPrice),
       };
       
-      await createBlog(newBlogData); // Llama a la API para crear el blog (userId se añade automáticamente en api.js)
+      await createBlog(newBlogData);
       
       setSuccess(true);
       setTitle('');
@@ -41,7 +41,6 @@ function CreateBlog({ userId }) {
       setImageUrl('');
       setSubscriptionPrice(0.00);
       
-      // Redirigir a "Mis Blogs" después de un breve retraso
       setTimeout(() => {
         navigate('/my-blogs');
       }, 1500);
@@ -110,7 +109,7 @@ function CreateBlog({ userId }) {
             className="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-accent-purple focus:border-accent-purple text-primary-dark-violet text-lg"
             placeholder="Ej. 9.99"
             min="0"
-            step="1.0"
+            step="0.01"
           />
           <p className="text-sm text-gray-500 mt-1">Establece 0.00 para un blog gratuito. Los posts podrán ser de pago o gratuitos.</p>
         </div>

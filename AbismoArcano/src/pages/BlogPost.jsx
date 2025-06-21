@@ -113,14 +113,14 @@ function BlogPost({ userId }) {
         <h1 className="text-4xl font-extrabold text-primary-dark-violet leading-tight">{post.title}</h1>
       </div>
       <img
-        src={post.image_url || `https://placehold.co/800x400/2C2B3F/EAEAEA?text=${encodeURIComponent(post.title)}`} // Usa image_url
+        src={post.image_url || `https://placehold.co/800x400/2C2B3F/EAEAEA?text=${encodeURIComponent(post.title)}`} // Usar post.image_url
         alt={post.title}
         className="w-full h-80 object-cover rounded-lg mb-8 shadow-md"
         onError={(e) => { e.target.onerror = null; e.target.src=`https://placehold.co/800x400/2C2B3F/EAEAEA?text=Imagen+No+Disp.` }}
       />
       <p className="text-primary-dark-violet text-sm mb-6 flex items-center">
         <CalendarDays className="mr-2" size={18} />
-        {new Date(post.created_at).toLocaleDateString()} {/* Usa created_at */}
+        {new Date(post.created_at).toLocaleDateString()}
         {isPaidPost && (
           <span className="ml-4 px-3 py-1 bg-button-golden text-primary-dark-violet rounded-full text-xs font-semibold flex items-center">
             <Lock size={14} className="mr-1" />
